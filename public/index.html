@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Login System | Defense-in-Depth Authentication</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Global Notification Banner -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-shield">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">SecureAuth</span>
+          <span class="brand-subtitle">Defense-in-Depth</span>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <button id="nav-login-btn" class="nav-btn active" data-view="login-view">Login</button>
+        <button id="nav-register-btn" class="nav-btn" data-view="register-view">Register</button>
+        <button id="nav-dashboard-btn" class="nav-btn" data-view="dashboard-view" style="display: none;">Dashboard</button>
+        <button id="nav-lab-btn" class="nav-btn" data-view="lab-view">Security Lab</button>
+      </nav>
+
+      <div class="nav-auth-status">
+        <span id="nav-user-badge" class="user-badge" style="display: none;">
+          <span class="status-dot online"></span>
+          <span id="nav-username-display">User</span>
+        </span>
+        <button id="logout-btn" class="btn btn-outline btn-sm" style="display: none;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content">
+    
+    <!-- 1. LOGIN VIEW -->
+    <section id="login-view" class="auth-card-wrapper view-active">
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="icon-bubble">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <h2>Welcome Back</h2>
+          <p class="auth-desc">Sign in to your protected account</p>
+        </div>
+
+        <form id="login-form" class="auth-form" novalidate>
+          <div class="form-group">
+            <label for="login-identifier">Username or Email</label>
+            <div class="input-wrapper">
+              <input type="text" id="login-identifier" placeholder="e.g. alex or alex@example.com" required autocomplete="username">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <div class="input-wrapper">
+              <input type="password" id="login-password" placeholder="Enter your password" required autocomplete="current-password">
+              <button type="button" class="password-toggle" data-target="login-password" aria-label="Toggle password visibility">
+                <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="login-submit-btn" class="btn btn-primary btn-block">
+            <span class="btn-text">Sign In Securely</span>
+            <span class="spinner" style="display:none;"></span>
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          <p>Don't have an account? <a href="#" id="switch-to-register">Register here</a></p>
+          <div class="security-pills">
+            <span class="security-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              bcrypt Hashed
+            </span>
+            <span class="security-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              SQLi Immune
+            </span>
+            <span class="security-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Rate Limited
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. REGISTER VIEW -->
+    <section id="register-view" class="auth-card-wrapper" style="display: none;">
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="icon-bubble">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+          </div>
+          <h2>Create Account</h2>
+          <p class="auth-desc">Protected with strong password hashing & input sanitization</p>
+        </div>
+
+        <form id="register-form" class="auth-form" novalidate>
+          <div class="form-group">
+            <label for="reg-username">Username</label>
+            <div class="input-wrapper">
+              <input type="text" id="reg-username" placeholder="3-30 letters, numbers, _ or -" required autocomplete="username">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+            </div>
+            <span class="field-hint">Alphanumeric, underscores, hyphens (3-30 characters)</span>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-email">Email Address</label>
+            <div class="input-wrapper">
+              <input type="email" id="reg-email" placeholder="you@domain.com" required autocomplete="email">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-password">Password</label>
+            <div class="input-wrapper">
+              <input type="password" id="reg-password" placeholder="Create a strong password" required autocomplete="new-password">
+              <button type="button" class="password-toggle" data-target="reg-password" aria-label="Toggle password visibility">
+                <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+
+            <!-- Password Strength Indicator -->
+            <div class="password-strength-container">
+              <div class="strength-bar">
+                <div id="strength-fill" class="strength-fill"></div>
+              </div>
+              <div class="strength-label">
+                <span>Strength:</span>
+                <span id="strength-text" class="strength-text">Empty</span>
+              </div>
+            </div>
+
+            <!-- Password Requirements Checklist -->
+            <ul class="password-requirements" id="password-requirements">
+              <li id="req-length" class="req-item">
+                <span class="req-dot"></span> At least 8 characters
+              </li>
+              <li id="req-lower" class="req-item">
+                <span class="req-dot"></span> One lowercase letter (a-z)
+              </li>
+              <li id="req-upper" class="req-item">
+                <span class="req-dot"></span> One uppercase letter (A-Z)
+              </li>
+              <li id="req-number" class="req-item">
+                <span class="req-dot"></span> One number (0-9)
+              </li>
+              <li id="req-special" class="req-item">
+                <span class="req-dot"></span> One special character (!@#$%^&*)
+              </li>
+            </ul>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-confirm-password">Confirm Password</label>
+            <div class="input-wrapper">
+              <input type="password" id="reg-confirm-password" placeholder="Re-enter your password" required autocomplete="new-password">
+            </div>
+            <span id="password-match-feedback" class="field-hint"></span>
+          </div>
+
+          <button type="submit" id="register-submit-btn" class="btn btn-primary btn-block">
+            <span class="btn-text">Register Account</span>
+            <span class="spinner" style="display:none;"></span>
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          <p>Already have an account? <a href="#" id="switch-to-login">Sign In</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 2FA LOGIN CHALLENGE MODAL -->
+    <div id="twofactor-modal" class="modal-overlay" style="display: none;">
+      <div class="modal-card">
+        <div class="auth-header">
+          <div class="icon-bubble accent-purple">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <h2>Two-Factor Authentication</h2>
+          <p class="auth-desc">Enter the 6-digit code from your authenticator app (Google Authenticator, Authy, etc.)</p>
+        </div>
+
+        <form id="twofactor-login-form" class="auth-form">
+          <div class="form-group">
+            <label for="twofactor-code-input">6-Digit TOTP Verification Code</label>
+            <div class="input-wrapper">
+              <input type="text" id="twofactor-code-input" class="otp-input" maxlength="6" pattern="[0-9]{6}" placeholder="000000" autofocus autocomplete="one-time-code">
+            </div>
+          </div>
+
+          <button type="submit" id="twofactor-submit-btn" class="btn btn-primary btn-block">
+            <span class="btn-text">Verify & Proceed</span>
+            <span class="spinner" style="display:none;"></span>
+          </button>
+
+          <button type="button" id="twofactor-cancel-btn" class="btn btn-secondary btn-block mt-2">Cancel Login</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 4. AUTHENTICATED DASHBOARD VIEW -->
+    <section id="dashboard-view" class="dashboard-wrapper" style="display: none;">
+      <!-- Dashboard Top Banner -->
+      <div class="dashboard-header-card">
+        <div class="dashboard-user-info">
+          <div class="user-avatar" id="dash-avatar">U</div>
+          <div>
+            <h2 class="welcome-heading">Welcome, <span id="dash-username">User</span>!</h2>
+            <p class="user-meta">
+              <span id="dash-email">email@example.com</span> • 
+              <span>Member since: <strong id="dash-created">...</strong></span>
+            </p>
+          </div>
+        </div>
+        <div class="dashboard-actions">
+          <button id="dash-logout-btn" class="btn btn-danger">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign Out
+          </button>
+        </div>
+      </div>
+
+      <!-- Security Grid -->
+      <div class="dashboard-grid">
+        
+        <!-- Card 1: Two-Factor Authentication Management -->
+        <div class="dashboard-card card-glow">
+          <div class="card-header">
+            <div class="card-icon-title">
+              <div class="mini-icon purple">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <h3>Two-Factor Authentication (2FA)</h3>
+            </div>
+            <span id="dash-2fa-badge" class="badge badge-inactive">Disabled</span>
+          </div>
+
+          <div class="card-body">
+            <p class="card-description">
+              Adds an extra layer of defense to your account using Time-based One-Time Passwords (TOTP RFC 6238).
+            </p>
+
+            <!-- 2FA Inactive State -->
+            <div id="section-2fa-disabled" class="twofactor-section">
+              <div class="alert-box alert-info">
+                2FA is currently disabled. Protect your account against compromised passwords by enabling 2FA now.
+              </div>
+              <button id="btn-start-2fa-setup" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Enable Two-Factor Authentication
+              </button>
+            </div>
+
+            <!-- 2FA Setup Flow State -->
+            <div id="section-2fa-setup" class="twofactor-section" style="display: none;">
+              <div class="setup-steps">
+                <div class="step-badge">Step 1</div>
+                <p>Scan this QR code with Google Authenticator, Authy, or 1Password:</p>
+                <div class="qr-container">
+                  <img id="qr-code-img" src="" alt="2FA QR Code">
+                </div>
+                
+                <div class="manual-secret-box">
+                  <span class="label">Or enter secret manually:</span>
+                  <code id="manual-secret-key">--------------------</code>
+                  <button type="button" id="copy-secret-btn" class="btn btn-sm btn-outline">Copy</button>
+                </div>
+
+                <div class="step-badge mt-3">Step 2</div>
+                <p>Enter the 6-digit code shown in your app to activate:</p>
+                <div class="form-row-inline">
+                  <input type="text" id="setup-2fa-token" class="otp-input-sm" maxlength="6" placeholder="123456">
+                  <button id="btn-confirm-2fa" class="btn btn-primary">Confirm & Activate</button>
+                  <button id="btn-cancel-2fa-setup" class="btn btn-secondary">Cancel</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2FA Active State -->
+            <div id="section-2fa-enabled" class="twofactor-section" style="display: none;">
+              <div class="alert-box alert-success">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Two-Factor Authentication is active. Your account requires a TOTP code on every login.
+              </div>
+
+              <div class="danger-zone mt-3">
+                <button id="btn-show-disable-2fa" class="btn btn-outline-danger btn-sm">Disable 2FA</button>
+                
+                <div id="disable-2fa-confirm-box" style="display: none;" class="mt-2">
+                  <p class="field-hint">Enter your password to confirm disabling 2FA:</p>
+                  <div class="form-row-inline">
+                    <input type="password" id="disable-2fa-password" placeholder="Current password">
+                    <button id="btn-confirm-disable-2fa" class="btn btn-danger btn-sm">Disable</button>
+                    <button id="btn-cancel-disable-2fa" class="btn btn-secondary btn-sm">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Card 2: Cryptographic & Storage Security Overview -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <div class="card-icon-title">
+              <div class="mini-icon green">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V18a1 1 0 0 1-2 0v-1.07A7 7 0 0 1 5.07 11H4a1 1 0 0 1 0-2h1.07A7 7 0 0 1 11 3.07V2a1 1 0 0 1 2 0v1.07A7 7 0 0 1 18.93 9H20a1 1 0 0 1 0 2h-1.07A7 7 0 0 1 13 16.93z"/></svg>
+              </div>
+              <h3>Active Security Protections</h3>
+            </div>
+            <span class="badge badge-active">Protected</span>
+          </div>
+
+          <div class="card-body">
+            <ul class="protection-list">
+              <li>
+                <div class="prot-icon">✓</div>
+                <div>
+                  <strong>Bcrypt Password Hashing</strong>
+                  <p>12 salt rounds with cryptographic salt to neutralize rainbow tables and GPU cracking.</p>
+                </div>
+              </li>
+              <li>
+                <div class="prot-icon">✓</div>
+                <div>
+                  <strong>SQL Injection Immunization</strong>
+                  <p>Prepared statements with strictly bound parameters via <code>node:sqlite</code>.</p>
+                </div>
+              </li>
+              <li>
+                <div class="prot-icon">✓</div>
+                <div>
+                  <strong>Session Fixation & XSS Protection</strong>
+                  <p>Session ID regenerated on authentication. Cookies flagged with <code>HttpOnly</code> and <code>SameSite=Lax</code>.</p>
+                </div>
+              </li>
+              <li>
+                <div class="prot-icon">✓</div>
+                <div>
+                  <strong>Brute-Force Rate Limiting</strong>
+                  <p>IP-based throttling restricts rapid credential stuffing attempts.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Card 3: Security & Activity Audit Log -->
+      <div class="dashboard-card mt-4">
+        <div class="card-header">
+          <div class="card-icon-title">
+            <div class="mini-icon blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <h3>Account Security Audit Log</h3>
+          </div>
+          <button id="btn-refresh-logs" class="btn btn-sm btn-outline">Refresh Logs</button>
+        </div>
+
+        <div class="card-body">
+          <p class="card-description">Chronological security events associated with your user account:</p>
+          <div class="table-responsive">
+            <table class="audit-table">
+              <thead>
+                <tr>
+                  <th>Event Type</th>
+                  <th>IP Address</th>
+                  <th>User Agent</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="audit-log-tbody">
+                <tr><td colspan="4" class="text-center">Loading audit logs...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 5. INTERACTIVE SECURITY LAB VIEW -->
+    <section id="lab-view" class="lab-wrapper" style="display: none;">
+      <div class="lab-header">
+        <h2>Interactive Security Lab</h2>
+        <p>Direct hands-on demonstration of how this application enforces security best practices.</p>
+      </div>
+
+      <div class="lab-grid">
+        <!-- Lab Component 1: SQL Injection Defense Simulator -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <div class="card-icon-title">
+              <div class="mini-icon red">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <h3>1. SQL Injection Defense Lab</h3>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <p class="card-description">
+              Test common SQL injection payloads and inspect how parameterized queries safeguard your data compared to vulnerable dynamic string concatenation.
+            </p>
+
+            <div class="preset-buttons">
+              <span class="preset-label">Try Attack Vectors:</span>
+              <button class="sqli-preset-btn" data-payload="' OR '1'='1">' OR '1'='1</button>
+              <button class="sqli-preset-btn" data-payload="admin' --">admin' --</button>
+              <button class="sqli-preset-btn" data-payload="' UNION SELECT 1, 'hacked', 'hack@hack.com', 'now' --">' UNION SELECT ...</button>
+            </div>
+
+            <div class="form-group mt-2">
+              <label for="sqli-test-input">Custom Search Payload</label>
+              <div class="input-wrapper">
+                <input type="text" id="sqli-test-input" value="' OR '1'='1" class="code-font">
+              </div>
+            </div>
+
+            <button id="btn-run-sqli-test" class="btn btn-primary btn-sm">Simulate & Compare</button>
+
+            <!-- Results Comparison Side-by-Side -->
+            <div id="sqli-results-container" class="comparison-grid mt-3" style="display:none;">
+              <div class="comparison-card safe">
+                <div class="comp-header">
+                  <span class="badge badge-active">Secure: Parameterized Query</span>
+                </div>
+                <div class="code-block">
+                  <code>db.prepare('SELECT ... WHERE username = ?').all(input)</code>
+                </div>
+                <div class="comp-explanation" id="sqli-safe-explanation">...</div>
+                <div class="comp-metric">Matches returned: <strong id="sqli-safe-count">0</strong></div>
+              </div>
+
+              <div class="comparison-card vulnerable">
+                <div class="comp-header">
+                  <span class="badge badge-danger">Vulnerable: Dynamic Concatenation</span>
+                </div>
+                <div class="code-block" id="sqli-vuln-sql">
+                  <code>SELECT ... WHERE username = '...'</code>
+                </div>
+                <div class="comp-explanation" id="sqli-vuln-explanation">...</div>
+                <div class="comp-metric">Compromised rows exposed: <strong id="sqli-vuln-count">0</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lab Component 2: BCrypt Password Hashing Visualizer -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <div class="card-icon-title">
+              <div class="mini-icon purple">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+              </div>
+              <h3>2. BCrypt Password Hashing Inspector</h3>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <p class="card-description">
+              Inspect how BCrypt applies 12 work factor rounds and unique cryptographic salts so identical passwords produce completely unique hashes.
+            </p>
+
+            <div class="form-group">
+              <label for="hash-test-input">Test Password String</label>
+              <div class="input-wrapper">
+                <input type="text" id="hash-test-input" value="SuperSecretP@ssw0rd!" class="code-font">
+              </div>
+            </div>
+
+            <button id="btn-run-hash-test" class="btn btn-primary btn-sm">Generate BCrypt Hash</button>
+
+            <div id="hash-results-container" class="hash-results mt-3" style="display: none;">
+              <div class="hash-display">
+                <div class="hash-label">Complete Generated Hash (60 chars):</div>
+                <div id="full-hash-output" class="hash-box">...</div>
+              </div>
+
+              <div class="hash-anatomy-grid mt-2">
+                <div class="anatomy-card">
+                  <span class="anatomy-title">Algorithm</span>
+                  <span id="hash-algo" class="anatomy-val">$2a$ (bcrypt)</span>
+                </div>
+                <div class="anatomy-card">
+                  <span class="anatomy-title">Cost Factor</span>
+                  <span id="hash-cost" class="anatomy-val">12 (4,096 rounds)</span>
+                </div>
+                <div class="anatomy-card">
+                  <span class="anatomy-title">Calculation Time</span>
+                  <span id="hash-time" class="anatomy-val">~200 ms</span>
+                </div>
+              </div>
+
+              <div class="hash-explanation-box mt-2">
+                <strong>Why BCrypt beats simple SHA-256 / MD5:</strong>
+                <p>MD5/SHA256 can be computed billions of times per second by attackers. BCrypt is deliberately slow and computationally expensive (work factor = 12), rendering brute force and dictionary attacks mathematically unfeasible.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <p>Secure Login Web Application • Built with Node.js, Express, node:sqlite, bcryptjs, & TOTP 2FA</p>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
