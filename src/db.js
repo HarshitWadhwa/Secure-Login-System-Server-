@@ -1,7 +1,11 @@
 const { DatabaseSync } = require('node:sqlite');
+const os = require('os');
 const path = require('path');
 
-const dbPath = process.env.DB_PATH || path.join(__dirname, '..', 'database.sqlite');
+const defaultDbPath = process.env.VERCEL
+  ? path.join(os.tmpdir(), 'secure-login-system.sqlite')
+  : path.join(__dirname, '..', 'database.sqlite');
+const dbPath = process.env.DB_PATH || defaultDbPath;
 const db = new DatabaseSync(dbPath);
 
 // Enable WAL mode and foreign keys for performance and integrity
