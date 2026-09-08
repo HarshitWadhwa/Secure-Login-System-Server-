@@ -6,10 +6,16 @@ const defaultDbPath = process.env.VERCEL
   ? path.join(os.tmpdir(), 'secure-login-system.sqlite')
   : path.join(__dirname, '..', 'database.sqlite');
 const dbPath = process.env.DB_PATH || defaultDbPath;
-const db = new DatabaseSync(dbPath);
 
-// Enable WAL mode and foreign keys for performance and integrity
-db.exec('PRAGMA foreign_keys = ON;');
+let db;
+try {
+  db = new DatabaseSync(dbPath);
+  db.exec('PRAGMA foreign_keys = ON;');
+} catch (err) {
+  console.warn(`[SQLite] Could not open database at "${dbPath}" (${err.message}). Falling back to in-memory database for serverless resilience.`);
+  db = new DatabaseSync(':memory:');
+  db.exec('PRAGMA foreign_keys = ON;');
+}
 
 // Initialize tables
 db.exec(`
